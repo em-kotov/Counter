@@ -9,38 +9,40 @@ public class Counter : MonoBehaviour
     [SerializeField] private int _step;
 
     private int _count = 0;
-    private bool _isActive = false;
-    private bool _wasPressed = false;
+    private Coroutine _countCoroutine;
 
     private void Start()
     {
-        _text.text = "0";
+        DisplayCount(_count);
     }
 
     private void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
-            _isActive = !_isActive;
-            _wasPressed = true;
+            if (_countCoroutine == null)
+                Restart();
+            else
+                Pause();
         }
+    }
 
-        if (_isActive && _wasPressed)
-        {
-            StartCoroutine(Count(_delay, _step));
-            _wasPressed = false;
-        }
-        else
-        {
-            StopCoroutine(Count(_delay, _step));
-        }
+    private void Restart()
+    {
+        _countCoroutine = StartCoroutine(Count(_delay, _step));
+    }
+
+    private void Pause()
+    {
+        StopCoroutine(_countCoroutine);
+        _countCoroutine = null;
     }
 
     private IEnumerator Count(float delay, int step)
     {
         var wait = new WaitForSeconds(delay);
 
-        while (_isActive)
+        while (enabled)
         {
             _count += step;
             DisplayCount(_count);
